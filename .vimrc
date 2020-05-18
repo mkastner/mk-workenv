@@ -127,7 +127,7 @@ Plug 'dense-analysis/ale'
 Plug 'posva/vim-vue'
 
 " nginx
-Plug 'chr4/nginx.vim'
+" Plug 'chr4/nginx.vim'
 
 " beautyfier 
 Plug 'maksimr/vim-jsbeautify'
