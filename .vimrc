@@ -8,7 +8,6 @@ autocmd! bufwritepost .vimrc source %
 set nocompatible
 
 set nobackup noswapfile
-
 " current file is current dir
 " set autochdir
 
@@ -25,6 +24,8 @@ endif
 set tabstop=2
 set shiftwidth=2
 set expandtab 
+" otherwise webpack will not be able to do hot reload
+set backupcopy=yes
 
 " display all matching files when tab complete
 set wildmenu
@@ -61,15 +62,15 @@ augroup CursorLine
   au WinLeave * setlocal nocursorline
 augroup END
 
-" This is NOT working
-" set t_8f=^[[38;2;%lu;%lu;%lum  " Needed in tmux
-" set t_8b=^[[48;2;%lu;%lu;%lum  " Ditto
+" This is NOT working on MAC but on FreeBSD
+set t_8f=^[[38;2;%lu;%lu;%lum  " Needed in tmux
+set t_8b=^[[48;2;%lu;%lu;%lum  " Ditto
 
-" This is WORKING
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+" This is WORKING on FreeBSD but on MAC 
+" let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+" let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
-set termguicolors
+" set termguicolors
 
 " got this from here
 " http://ellengummesson.com/blog/2014/02/22/make-vim-really-behave-like-netrw/
@@ -86,7 +87,7 @@ let g:netrw_banner=0
 " let g:netrw_winsize=25
 
 " If installed using Homebrew
-" set rtp+=/usr/local/opt/fzf
+" set rtp+=/usr/local/bin/fzf
 
 " using Plug Plugin Manager
 
@@ -102,16 +103,18 @@ let g:netrw_banner=0
 
 call plug#begin('~/.vim/plugged')
 
-" If installed using Homebrew
-Plug '/usr/local/opt/fzf'
+" Plug 'junegunn/fzf'
+
+" Plug '/usr/local/bin/fzf'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'tmux-plugins/vim-tmux'
-Plug 'shmargum/vim-sass-colors'
+" Plug 'shmargum/vim-sass-colors'
 " Plug 'ryanoasis/vim-devicons' 
 " Plug 'justinmk/vim-dirvish'
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-
-" Plug 'ap/vim-css-color'
+" Plug 'airblade/vim-gitgutter'
+Plug 'ap/vim-css-color'
 
 " highlights backtick etc.
 Plug 'pangloss/vim-javascript'
@@ -127,7 +130,7 @@ Plug 'dense-analysis/ale'
 Plug 'posva/vim-vue'
 
 " nginx
-Plug 'chr4/nginx.vim'
+" Plug 'chr4/nginx.vim'
 
 " beautyfier 
 Plug 'maksimr/vim-jsbeautify'
@@ -158,6 +161,7 @@ let g:user_emmet_leader_key=','
 " let g:ale_sign_column_always = 0 
 " show ale errors in status line
 let g:airline#extensions#ale#enabled = 1
+" let g:ale_sign_error = '➤'
 let g:ale_sign_error = '➤'
 
 " let g:ale_lint_on_enter = 1
@@ -168,8 +172,10 @@ let g:ale_lint_on_save = 1
 
 " let g:jsdoc_enable_es6 = 1
 
-"  let g:airline_theme = 'monokai_tasty'
-" let g:lightline = { 'colorscheme': 'monokai_tasty' }
+color darkblue 
+
+" let g:airline_theme = 'monokai-tasty'
+" let g:lightline = { 'colorscheme': 'monokai-tasty' }
 
 " let g:ale_linters = {
 " \  'javascript': ['eslint'],
