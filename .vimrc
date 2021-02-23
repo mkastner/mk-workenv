@@ -6,6 +6,8 @@
 autocmd! bufwritepost .vimrc source % 
 " something progressive
 set nocompatible
+set t_Co=256
+" colors koehler 
 
 set nobackup noswapfile
 " current file is current dir
@@ -13,6 +15,14 @@ set nobackup noswapfile
 
 set path+=**
 set wildignore+=**/node_modules/**
+
+" all things folding
+set foldmethod=syntax  
+set foldnestmax=10
+set nofoldenable
+set foldlevel=2
+
+
 
 " make copy to osx past buffer
 
@@ -36,9 +46,11 @@ set number
 " prevent esc timeout
 set timeoutlen=1000 ttimeoutlen=0
 
+set hidden
+
 " enable syntax and plugins (for netrw)
 syntax enable
-filetype plugin on
+filetype plugin indent on
 
 " zoom in zoom out
 " noremap Zz <c-w>_\|<c-w>\|
@@ -62,15 +74,47 @@ augroup CursorLine
   au WinLeave * setlocal nocursorline
 augroup END
 
+""" Customize colors
+
+" set termguicolors
+
+func! s:my_colors_setup() abort
+    " this is an example
+  highlight Pmenu ctermbg=darkblue ctermfg=white
+  highlight PmenuSel ctermbg=lightblue ctermfg=darkblue
+  highlight PmenuSbar ctermbg=DarkGray ctermfg=white
+  highlight PmenuThumb ctermbg=NONE ctermfg=White
+  highlight Search ctermbg=Blue ctermfg=White
+  highlight CocInfoFloat ctermbg=darkblue ctermfg=white
+  highlight CocErrorFloat ctermbg=darkred ctermfg=lightyellow
+  highlight CocWarningFloat ctermbg=darkred ctermfg=lightyellow
+  highlight CocHintFloat ctermbg=darkblue ctermfg=yellow
+endfunc
+
+augroup colorscheme_coc_setup | au!
+    au ColorScheme * call s:my_colors_setup()
+augroup END
+
+augroup Racer
+  autocmd!
+  autocmd FileType rust nmap <buffer> gd         <Plug>(rust-def)
+  autocmd FileType rust nmap <buffer> gs         <Plug>(rust-def-split)
+  autocmd FileType rust nmap <buffer> gx         <Plug>(rust-def-vertical)
+  autocmd FileType rust nmap <buffer> gt         <Plug>(rust-def-tab)
+  autocmd FileType rust nmap <buffer> <leader>gd <Plug>(rust-doc)
+  autocmd FileType rust nmap <buffer> <leader>gD <Plug>(rust-doc-tab)
+augroup END
+
+
 " This is NOT working on MAC but on FreeBSD
-set t_8f=^[[38;2;%lu;%lu;%lum  " Needed in tmux
-set t_8b=^[[48;2;%lu;%lu;%lum  " Ditto
+" set t_8f=^[[38;2;%lu;%lu;%lum  " Needed in tmux
+" set t_8b=^[[48;2;%lu;%lu;%lum  " Ditto
 
 " This is WORKING on FreeBSD but on MAC 
 " let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 " let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
-" set termguicolors
+let g:vimspector_enable_mappings = 'HUMAN'
 
 " got this from here
 " http://ellengummesson.com/blog/2014/02/22/make-vim-really-behave-like-netrw/
@@ -101,58 +145,46 @@ let g:netrw_banner=0
 " \   'javascript': ['eslint'],
 " \}
 
+
 call plug#begin('~/.vim/plugged')
 
-" Plug 'junegunn/fzf'
-
-" Plug '/usr/local/bin/fzf'
+Plug 'puremourning/vimspector'
+Plug 'leafOfTree/vim-svelte-plugin'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'tmux-plugins/vim-tmux'
-" Plug 'shmargum/vim-sass-colors'
-" Plug 'ryanoasis/vim-devicons' 
-" Plug 'justinmk/vim-dirvish'
-" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-" Plug 'airblade/vim-gitgutter'
+Plug 'ryanoasis/vim-devicons' 
+Plug 'airblade/vim-gitgutter'
 Plug 'ap/vim-css-color'
-
-" highlights backtick etc.
+Plug 'mustache/vim-mustache-handlebars'
 Plug 'pangloss/vim-javascript'
-
-Plug 'patstockwell/vim-monokai-tasty'
-
+Plug 'neoclide/coc.nvim', {'branch': 'release'} 
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-obsession'
 
-" linter plugin
-Plug 'dense-analysis/ale'
-
-" vue 
 Plug 'posva/vim-vue'
 
-" nginx
-" Plug 'chr4/nginx.vim'
-
-" beautyfier 
+Plug 'rust-lang/rust.vim'
 Plug 'maksimr/vim-jsbeautify'
-
-" seems to be needed for ack to work properly
 Plug 'tpope/vim-dispatch'
-
-" its ack
 Plug 'mileszs/ack.vim'
-
 Plug 'mattn/emmet-vim'
-
-" graphql support
 Plug 'jparise/vim-graphql'
-
-" bottom status bar
-Plug 'vim-airline/vim-airline'
-
-" Javascript Docs 
 Plug 'heavenshell/vim-jsdoc'
 
 call plug#end()
+
+let g:vim_svelte_plugin_use_sass = 1
+let g:vim_svelte_plugin_debug = 1
+
+let g:racer_cmd="/home/devel/.cargo/bin/racer"
+let g:racer_experimental_completer = 1
+
+" let g:LanguageClient_serverCommands = {
+" \ 'rust': ['rust-analyzer'],
+" \ }
+
 
 let g:javascript_plugin_jsdoc = 1
 let g:user_emmet_leader_key=','
@@ -160,24 +192,29 @@ let g:user_emmet_leader_key=','
 " let g:ale_javascript_eslint_use_global = 1
 " let g:ale_sign_column_always = 0 
 " show ale errors in status line
-let g:airline#extensions#ale#enabled = 1
+" let g:airline#extensions#ale#enabled = 1
 " let g:ale_sign_error = '➤'
-let g:ale_sign_error = '➤'
+" let g:ale_sign_error = '➤'
 
 " let g:ale_lint_on_enter = 1
-let g:ale_lint_on_save = 1
+" let g:ale_lint_on_save = 1
 " let g:ale_lint_on_text_changed = 'always'
 
 " let g:ack_use_dispatch = 1
 
 " let g:jsdoc_enable_es6 = 1
 
-color darkblue 
+colors slate 
+"set t_Co=256
 
-" let g:airline_theme = 'monokai-tasty'
-" let g:lightline = { 'colorscheme': 'monokai-tasty' }
 
 " let g:ale_linters = {
 " \  'javascript': ['eslint'],
 " \}
-
+" if executable('rls')
+"  au User lsp_setup call lsp#register_server({
+"    \ 'name': 'rls',
+"    \ 'cmd': {server_info->['rustup', 'run', 'nightly', 'rls']},
+"    \ 'whitelist': ['rust'],
+"    \ })
+" endif 
